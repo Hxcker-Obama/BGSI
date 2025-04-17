@@ -185,8 +185,8 @@ local MasteryToggle = Misc:CreateToggle({
 local RiftsFolder = workspace.Rendered.Rifts
 local AllRifts = {}
 
-for _, Rift in RiftsFolder:GetChildren() do
-	table.insert(AllRifts, Rift)
+for i, Rift in RiftsFolder:GetChildren() do
+	table.insert(AllRifts, tostring(i) .. ". " .. Rift.Name)
 end
 
 local RiftDropdown = Rifts:CreateDropdown({
@@ -196,7 +196,8 @@ local RiftDropdown = Rifts:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "RiftDropdown",
 	Callback = function(Options)
-		TweenService:Create(HumRoot, TweenInfo.new(5, Enum.EasingStyle.Linear), {CFrame = Options[1].CFrame}):Play()
+		local RiftNumber = tonumber(string.split(Options[1], ".")[1])
+		TweenService:Create(HumRoot, TweenInfo.new(5, Enum.EasingStyle.Linear), {CFrame = RiftsFolder:GetChildren()[RiftNumber].Display.CFrame}):Play()
 	end,
 })
 
