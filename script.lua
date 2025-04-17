@@ -166,4 +166,19 @@ local UnlockButton = Misc:CreateButton({
 	end,
 })
 
+local MasteryToggle = Misc:CreateToggle({
+	Name = "Auto Mastery",
+	CurrentValue = false,
+	Flag = "AutoMastery",
+	Callback = function(Value)
+		_G.Settings["AutoMastery"] = Value
+		while _G.Settings["AutoMastery"] do 
+			for i, UpgradeType in require(game:GetService("ReplicatedStorage").Shared.Data.Mastery).Upgrades do
+				Network:FireServer("UpgradeMastery", i)
+			end
+			wait(15)
+		end
+	end,
+})
+
 Rayfield:LoadConfiguration()
