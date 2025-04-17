@@ -183,15 +183,15 @@ local MasteryToggle = Misc:CreateToggle({
 })
 
 local RiftsFolder = workspace.Rendered.Rifts
-local Rifts = {}
+local AllRifts = {}
 
 for _, Rift in RiftsFolder:GetChildren() do
-	table.insert(Rifts, Rift)
+	table.insert(AllRifts, Rift)
 end
 
 local RiftDropdown = Rifts:CreateDropdown({
 	Name = "Teleport To Rift",
-	Options = Rifts,
+	Options = AllRifts,
 	CurrentOption = "None",
 	MultipleOptions = false,
 	Flag = "RiftDropdown",
