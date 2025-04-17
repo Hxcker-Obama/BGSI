@@ -11,7 +11,7 @@ local function State(Setting)
 	return _G.Settings[Setting]
 end
 
-local Network = require(RS.Shared.Framework.Network.Remote)
+local Network = require(game:GetService("ReplicatedStorage").Shared.Framework.Network.Remote)
 local DataModule = require(RS.Client.Framework.Services.LocalData)
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -23,7 +23,7 @@ local Window = Rayfield:CreateWindow({
 	LoadingSubtitle = "by Obama",
 	Theme = "Default",
 
-	DisableRayfieldPrompts = false,
+	DisableRayfieldPrompts = true,
 	DisableBuildWarnings = true,
 
 	ConfigurationSaving = {
@@ -52,6 +52,7 @@ local Window = Rayfield:CreateWindow({
 
 local Main = Window:CreateTab("Main", 4483362458)
 local Eggs = Window:CreateTab("Eggs", 4483362458)
+local Rifts = Window:CreateTab("Rifts", 4483362458)
 local Misc = Window:CreateTab("Misc", 4483362458)
 
 local BubblesToggle = Main:CreateToggle({
@@ -178,6 +179,24 @@ local MasteryToggle = Misc:CreateToggle({
 			end
 			wait(15)
 		end
+	end,
+})
+
+local RiftsFolder = workspace.Rendered.Rifts
+local Rifts = {}
+
+for _, Rift in RiftsFolder:GetChildren() do
+	table.insert(Rifts, Rift)
+end
+
+local RiftDropdown = Rifts:CreateDropdown({
+	Name = "Teleport To Rift",
+	Options = Rifts,
+	CurrentOption = "None",
+	MultipleOptions = false,
+	Flag = "RiftDropdown",
+	Callback = function(Options)
+		TweenService:Create(HumRoot, TweenInfo.new(5, Enum.EasingStyle.Linear), {CFrame = Options[1].CFrame}):Play()
 	end,
 })
 
