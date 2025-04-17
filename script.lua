@@ -108,6 +108,7 @@ local AutoCollect = Main:CreateToggle({
 					for i, v in Folder:GetChildren() do
 						if not v:GetAttribute("Island") then
 							RS.Remotes.Pickups.CollectPickup:FireServer(v.Name)
+							v:Destroy()
 						end
 					end
 				end
