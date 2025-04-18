@@ -11,7 +11,7 @@ local function State(Setting)
 	return _G.Settings[Setting]
 end
 
-local Network = require(game:GetService("ReplicatedStorage").Shared.Framework.Network.Remote)
+local Network = require(RS.Shared.Framework.Network.Remote)
 local DataModule = require(RS.Client.Framework.Services.LocalData)
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -33,26 +33,27 @@ local Window = Rayfield:CreateWindow({
 	},
 
 	Discord = {
-		Enabled = false, 
-		Invite = "noinvitelink", 
+		Enabled = true, 
+		Invite = "8bAj9Wz8nj", 
 		RememberJoins = true 
 	},
 
-	KeySystem = false,
+	KeySystem = true,
 	KeySettings = {
-		Title = "Untitled",
-		Subtitle = "Key System",
-		Note = "No key",
+		Title = "Project: Fire | Key System",
+		Subtitle = "By Obama",
+		Note = "Follow the key system via our discord! ",
 		FileName = "Key", 
 		SaveKey = true,
 		GrabKeyFromSite = false,
-		Key = {"Hello"}
+		Key = {"Obamatron"}
 	}
 })
 
 local Main = Window:CreateTab("Main", 4483362458)
 local Eggs = Window:CreateTab("Eggs", 4483362458)
 local Rifts = Window:CreateTab("Rifts", 4483362458)
+local Rewards = Window:CreateTab("Rewards", 4483362458)
 local Misc = Window:CreateTab("Misc", 4483362458)
 
 local BubblesToggle = Main:CreateToggle({
@@ -124,7 +125,6 @@ local AllEggs = {}
 local SelectedEgg
 
 for EggName, EggInfo in EggsModule do
-	print(EggName)
 	table.insert(AllEggs, EggName)
 end
 
@@ -136,7 +136,6 @@ local EggsDropdown = Eggs:CreateDropdown({
 	Flag = "EggDropdown",
 	Callback = function(Options)
 		SelectedEgg = Options[1]
-		print(SelectedEgg)
 	end,
 })
 
@@ -152,6 +151,15 @@ local HatchToggle = Eggs:CreateToggle({
 				Network:FireServer("HatchEgg", SelectedEgg, 10)
 			end
 			wait(0.25)
+		end
+	end,
+})
+
+local CodesButton = Misc:CreateButton({
+	Name = "Redeem All Codes",
+	Callback = function()
+		for i, v in require(RS.Shared.Data.Codes) do
+			Network:InvokeServer("RedeemCode", i)
 		end
 	end,
 })
@@ -184,10 +192,15 @@ local MasteryToggle = Misc:CreateToggle({
 
 local RiftsFolder = workspace.Rendered.Rifts
 local AllRifts = {}
+local SelectedRift
 
-for i, Rift in RiftsFolder:GetChildren() do
-	table.insert(AllRifts, tostring(i) .. ". " .. Rift.Name)
+local function ResetRifts()
+	AllRifts = {}
+	for i, Rift in RiftsFolder:GetChildren() do
+		table.insert(AllRifts, tostring(i) .. ". " .. Rift.Name)
+	end
 end
+ResetRifts()
 
 local RiftDropdown = Rifts:CreateDropdown({
 	Name = "Teleport To Rift",
@@ -197,7 +210,70 @@ local RiftDropdown = Rifts:CreateDropdown({
 	Flag = "RiftDropdown",
 	Callback = function(Options)
 		local RiftNumber = tonumber(string.split(Options[1], ".")[1])
-		TweenService:Create(HumRoot, TweenInfo.new(5, Enum.EasingStyle.Linear), {CFrame = RiftsFolder:GetChildren()[RiftNumber].Display.CFrame}):Play()
+		SelectedRift = RiftNumber
+	end,
+})
+
+local TeleportButton = Rifts:CreateButton({
+	Name = "Teleport",
+	Callback = function()
+		TweenService:Create(HumRoot, TweenInfo.new(5, Enum.EasingStyle.Linear), {CFrame = RiftsFolder:GetChildren()[SelectedRift].Display.CFrame}):Play()
+	end,
+})
+
+RiftsFolder.ChildAdded:Connect(function()
+	ResetRifts()
+	RiftDropdown:Refresh(AllRifts)
+end)
+
+RiftsFolder.ChildRemoved:Connect(function()
+	ResetRifts()	
+	RiftDropdown:Refresh(AllRifts)
+end)
+
+local DailyToggle = Rewards:CreateToggle({
+	Name = "Auto Claim Daily",
+	CurrentValue = false,
+	Flag = "AutoDaily",
+	Callback = function(Value)
+		_G.Settings["AutoDaily"] = Value
+		while _G.Settings["AutoDaily"] do 
+			Network:FireServer("DailyRewardClaimStars")
+			task.wait(300)
+		end
+	end,
+})
+
+local WheelSpinToggle = Rewards:CreateToggle({
+	Name = "Auto Wheel Spin",
+	CurrentValue = false,
+	Flag = "AutoWheel",
+	Callback = function(Value)
+		_G.Settings["AutoWheel"] = Value
+		while _G.Settings["AutoWheel"] do 
+			Network:FireServer("ClaimFreeWheelSpin")
+			Network:InvokeServer("WheelSpin")
+			task.wait(60)
+		end
+	end,
+})
+
+local Connection
+
+local MysteryToggle = Rewards:CreateToggle({
+	Name = "Auto Mystery Gift",
+	CurrentValue = false,
+	Flag = "AutoMystery",
+	Callback = function(Value)
+		_G.Settings["AutoMystery"] = Value
+		Connection = workspace.Rendered.Gifts.ChildAdded:Connect(function(Gift)
+			Network:FireServer("ClaimGift", Gift.Name)
+		end)
+		if not _G.Settings["AutoMystery"] then Connection:Disconnect() end
+		while _G.Settings["AutoMystery"] do 
+			Network:FireServer("UseGift", "Mystery Box", 10)
+			task.wait()
+		end
 	end,
 })
 
